@@ -16,10 +16,10 @@
 <p class="hint">Налог и ДДС рассчитаны по упрощённым допущениям. Все расходы и налог оплачиваются в месяц начисления; остаток дебиторской задолженности на начало периода равен нулю.</p>
 <button id="reset" type="button">Сбросить параметры</button></aside>
 <section class="panel"><div class="actions"><h2 style="margin:0">Финансовый дашборд</h2><button id="export" type="button">Экспорт CSV</button></div>
-<div class="metrics"><div class="metric"><small>Выручка за 12 мес.</small><strong id="mRevenue">—</strong><em>по начислению</em></div><div class="metric"><small>Чистая прибыль</small><strong id="mProfit">—</strong><em>за 12 месяцев</em></div><div class="metric"><small>Чистая рентабельность</small><strong id="mMargin">—</strong><em>прибыль / выручка</em></div><div class="metric"><small>Деньги на конец периода</small><strong id="mCash">—</strong><em>расчётный остаток</em></div></div>
-<div class="charts"><div class="chart"><h3>Выручка и чистая прибыль, ₽</h3><svg id="chartPnl" class="plot" role="img" aria-label="График выручки и чистой прибыли"></svg><div class="legend"><span><i class="dot" style="background:#527ce7"></i>Выручка</span><span><i class="dot" style="background:#27ae96"></i>Прибыль</span></div></div><div class="chart"><h3>Остаток денежных средств, ₽</h3><svg id="chartCash" class="plot" role="img" aria-label="График остатка денежных средств"></svg><div class="legend"><span><i class="dot" style="background:#8c70d6"></i>Остаток</span><span><i class="dot" style="background:#df6572"></i>Отрицательный остаток</span></div></div></div>
+<div class="metrics"><div class="metric"><small>Выручка за 12 мес.</small><strong id="mRevenue">—</strong><em>по начислению</em></div><div class="metric"><small>Операционная прибыль</small><strong id="mProfit">—</strong><em>за 12 месяцев</em></div><div class="metric"><small>Операционная рентабельность</small><strong id="mMargin">—</strong><em>прибыль / выручка</em></div><div class="metric"><small>Деньги на конец периода</small><strong id="mCash">—</strong><em>расчётный остаток</em></div></div>
+<div class="charts"><div class="chart"><h3>Выручка и операционная прибыль, ₽</h3><svg id="chartPnl" class="plot" role="img" aria-label="График выручки и чистой прибыли"></svg><div class="legend"><span><i class="dot" style="background:#527ce7"></i>Выручка</span><span><i class="dot" style="background:#27ae96"></i>Прибыль</span></div></div><div class="chart"><h3>Остаток денежных средств, ₽</h3><svg id="chartCash" class="plot" role="img" aria-label="График остатка денежных средств"></svg><div class="legend"><span><i class="dot" style="background:#8c70d6"></i>Остаток</span><span><i class="dot" style="background:#df6572"></i>Отрицательный остаток</span></div></div></div>
 <div id="status" class="warning ok"></div><div class="tablewrap"><table><thead><tr><th>Показатель</th><th colspan="12">Помесячный план</th></tr></thead><tbody id="table"></tbody></table></div>
-<div class="foot">Прототип для демонстрации сценарного анализа. Не включает НДС, CAPEX, кредиты, амортизацию, запасы и полноценный баланс. Формулы и ограничения описаны в docs/METHODOLOGY.md.</div></section></div></main>
+<div class="foot">Рабочая демонстрационная модель. Введённые параметры сохраняются в браузере этого устройства. Не включает НДС, CAPEX, кредиты, амортизацию, запасы и полноценный баланс. Формулы и ограничения описаны в docs/METHODOLOGY.md.</div></section></div></main>
 <script>
 "use strict";
 const ids=["revenue","growth","variable","fixed","tax","paid","opening"];
@@ -32,7 +32,7 @@ const num=id=>Number(el(id).value);
 const sum=(rows,key)=>rows.reduce((s,r)=>s+r[key],0);
 function compute(){
  const p=Object.fromEntries(ids.map(id=>[id,num(id)]));
- if(ids.some(id=>!Number.isFinite(p[id])||p[id]<0)||p.growth>100||p.variable>100||p.tax>100||p.paid>100){el("status").className="warning";el("status").textContent="Проверьте параметры: суммы не могут быть отрицательными, ставки должны быть от 0 до 100% (рост допускает от −100 до 100%).";return null}
+ if(ids.some(id=>!Number.isFinite(p[id]))||p.revenue<0||p.growth< -100||p.growth>100||p.variable<0||p.variable>100||p.fixed<0||p.tax<0||p.tax>100||p.paid<0||p.paid>100||p.opening<0){el("status").className="warning";el("status").textContent="Проверьте параметры: суммы не могут быть отрицательными, ставки должны быть от 0 до 100% (рост допускает от −100 до 100%).";return null}
  let cash=p.opening,previous=0;const rows=[];
  for(let t=0;t<12;t++){
  const revenue=p.revenue*Math.pow(1+p.growth/100,t);
@@ -60,7 +60,7 @@ function chart(id,series){
 }
 let latest=[];
 function render(){
- const rows=compute();if(!rows)return;latest=rows;
+ const rows=compute();if(!rows){latest=[];return;}latest=rows;try{localStorage.setItem("finance-navigator-inputs",JSON.stringify(Object.fromEntries(ids.map(id=>[id,num(id)]))))}catch(e){}
  const rev=sum(rows,"revenue"),profit=sum(rows,"profit"),cash=rows[11].cash;
  el("mRevenue").textContent=money(rev);el("mProfit").textContent=money(profit);
  el("mMargin").textContent=(rev?profit/rev*100:0).toLocaleString("ru-RU",{maximumFractionDigits:1})+"%";
@@ -71,7 +71,7 @@ function render(){
  const bad=rows.filter(r=>r.cash<0).map(r=>r.month);
  el("status").className="warning"+(bad.length?"":" ok");
  el("status").textContent=bad.length?"Внимание: расчётный отрицательный остаток денежных средств в месяцах: "+bad.join(", ")+". Требуется дополнительное финансирование или изменение условий.":"В базовой модели отрицательных остатков денежных средств нет.";
- const metrics=[["Выручка","revenue"],["Переменные затраты","variable"],["Постоянные расходы","fixed"],["Модельный налог","tax"],["Чистая прибыль","profit"],["Поступления","receipts"],["Чистый денежный поток","flow"],["Остаток денег","cash"]];
+ const metrics=[["Выручка","revenue"],["Переменные затраты","variable"],["Постоянные расходы","fixed"],["Модельный налог","tax"],["Операционная прибыль","profit"],["Поступления","receipts"],["Чистый денежный поток","flow"],["Остаток денег","cash"]];
  el("table").innerHTML=metrics.map(([label,key])=>'<tr><td>'+label+'</td>'+rows.map(r=>'<td'+(r[key]<0?' class="negative"':'')+'>'+fmt(r[key])+'</td>').join("")+'</tr>').join("");
  el("table").parentElement.previousElementSibling?.setAttribute("aria-live","polite");
 }
@@ -85,5 +85,6 @@ el("export").addEventListener("click",()=>{
  const csv="\ufeff"+[labels.join(";"),...latest.map(r=>keys.map(k=>String(Math.round(r[k]*100)/100).replace(".",",")).join(";"))].join("\r\n");
  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="finance-navigator-plan.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
+try{const saved=JSON.parse(localStorage.getItem("finance-navigator-inputs")||"null");if(saved&&ids.every(id=>typeof saved[id]==="number"&&Number.isFinite(saved[id])))ids.forEach(id=>el(id).value=saved[id])}catch(e){}
 render();
 </script></body></html>
