@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Finance Navigator — финансовая модель МСБ</title>
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1c2942;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1280px;margin:auto;padding:30px 22px 70px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}.brand{font-weight:800;font-size:24px;letter-spacing:-.7px}.brand span{color:#3c6ee8}.tag{color:#64748b;font-size:13px}.hero{background:linear-gradient(115deg,#15284c,#365cb1);color:white;border-radius:22px;padding:30px;margin-bottom:22px}.hero h1{font-size:30px;margin:0 0 8px}.hero p{color:#d7e4ff;max-width:730px;line-height:1.6;margin:0}.layout{display:grid;grid-template-columns:320px 1fr;gap:20px}.panel{background:white;border:1px solid #e2e8f2;border-radius:18px;padding:22px;box-shadow:0 6px 24px #263e6510}.panel h2{font-size:17px;margin:0 0 18px}.field{display:block;margin:0 0 15px;font-size:12px;font-weight:700;color:#53617a}.field input,.field select{width:100%;margin-top:6px;border:1px solid #d8e1ef;border-radius:9px;padding:11px 12px;font-size:15px;color:#1c2942;background:#fff}.field input:focus,.field select:focus{outline:2px solid #9ab8ff;border-color:#6b92e8}.hint{font-size:12px;color:#738198;line-height:1.5}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.metric{border:1px solid #e1e8f2;border-radius:14px;padding:17px}.metric small{color:#687790;font-size:12px}.metric strong{display:block;font-size:21px;margin-top:10px;white-space:nowrap}.metric em{font-size:11px;color:#7c8ba2;font-style:normal}.negative{color:#d24d62!important}.positive{color:#19866d!important}.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:17px}.chart{border:1px solid #e1e8f2;border-radius:14px;padding:18px;min-width:0}.chart h3{font-size:14px;margin:0 0 12px}.plot{width:100%;height:210px}.legend{display:flex;gap:15px;font-size:11px;color:#6b778f;flex-wrap:wrap}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.tablewrap{overflow-x:auto;margin-top:17px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:11px 10px;border-bottom:1px solid #e9edf4;text-align:right}th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:#fff}th{color:#65748d;background:#f8faff}td:first-child{font-weight:650}.warning{padding:12px 15px;border-radius:10px;background:#fff2ee;color:#a74932;font-size:13px;margin-top:15px}.ok{background:#ecf9f3;color:#217459}.actions{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:16px}button{background:#315fcb;color:white;border:0;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:650}button:hover{background:#244aa5}.foot{margin-top:18px;color:#7a879a;font-size:12px;line-height:1.5}@media(max-width:1050px){.metrics{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}}@media(max-width:760px){.layout{grid-template-columns:1fr}.wrap{padding:16px 12px}.hero{padding:22px}.hero h1{font-size:25px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric strong{font-size:18px}header{align-items:flex-start;flex-direction:column}}
+</style></head><body><main class="wrap"><header><div class="brand">Finance <span>Navigator</span></div><div class="tag">Интерактивная финансовая модель · Демоверсия 0.1</div></header>
+<section class="hero"><h1>Управляйте цифрами. Видьте результат.</h1><p>Изменяйте финансовые предпосылки и сразу оценивайте прибыль, денежный поток и риск кассового разрыва на горизонте 12 месяцев.</p></section>
+<div class="layout"><aside class="panel"><h2>Параметры модели</h2>
+<label class="field">Сценарий<select id="scenario"><option value="base">Базовый</option><option value="growth">Рост</option><option value="stress">Стресс</option></select></label>
+<label class="field">Выручка первого месяца, ₽<input id="revenue" type="number" min="0" step="10000" value="1500000"></label>
+<label class="field">Рост выручки в месяц, %<input id="growth" type="number" min="-100" max="100" step=".5" value="3"></label>
+<label class="field">Переменные затраты, % выручки<input id="variable" type="number" min="0" max="100" step=".5" value="40"></label>
+<label class="field">Постоянные расходы в месяц, ₽<input id="fixed" type="number" min="0" step="10000" value="600000"></label>
+<label class="field">Условный налог с выручки, %<input id="tax" type="number" min="0" max="100" step=".5" value="6"></label>
+<label class="field">Оплаты покупателей в текущем месяце, %<input id="paid" type="number" min="0" max="100" step="5" value="80"></label>
+<label class="field">Начальный остаток денег, ₽<input id="opening" type="number" min="0" step="10000" value="500000"></label>
+<p class="hint">Налог и ДДС рассчитаны по упрощённым допущениям. Все расходы и налог оплачиваются в месяц начисления; остаток дебиторской задолженности на начало периода равен нулю.</p>
+<button id="reset" type="button">Сбросить параметры</button></aside>
+<section class="panel"><div class="actions"><h2 style="margin:0">Финансовый дашборд</h2><button id="export" type="button">Экспорт CSV</button></div>
+<div class="metrics"><div class="metric"><small>Выручка за 12 мес.</small><strong id="mRevenue">—</strong><em>по начислению</em></div><div class="metric"><small>Чистая прибыль</small><strong id="mProfit">—</strong><em>за 12 месяцев</em></div><div class="metric"><small>Чистая рентабельность</small><strong id="mMargin">—</strong><em>прибыль / выручка</em></div><div class="metric"><small>Деньги на конец периода</small><strong id="mCash">—</strong><em>расчётный остаток</em></div></div>
+<div class="charts"><div class="chart"><h3>Выручка и чистая прибыль, ₽</h3><svg id="chartPnl" class="plot" role="img" aria-label="График выручки и чистой прибыли"></svg><div class="legend"><span><i class="dot" style="background:#527ce7"></i>Выручка</span><span><i class="dot" style="background:#27ae96"></i>Прибыль</span></div></div><div class="chart"><h3>Остаток денежных средств, ₽</h3><svg id="chartCash" class="plot" role="img" aria-label="График остатка денежных средств"></svg><div class="legend"><span><i class="dot" style="background:#8c70d6"></i>Остаток</span><span><i class="dot" style="background:#df6572"></i>Отрицательный остаток</span></div></div></div>
+<div id="status" class="warning ok"></div><div class="tablewrap"><table><thead><tr><th>Показатель</th><th colspan="12">Помесячный план</th></tr></thead><tbody id="table"></tbody></table></div>
+<div class="foot">Прототип для демонстрации сценарного анализа. Не включает НДС, CAPEX, кредиты, амортизацию, запасы и полноценный баланс. Формулы и ограничения описаны в docs/METHODOLOGY.md.</div></section></div></main>
+<script>
+"use strict";
+const ids=["revenue","growth","variable","fixed","tax","paid","opening"];
+const defaults={revenue:1500000,growth:3,variable:40,fixed:600000,tax:6,paid:80,opening:500000};
+const presets={base:defaults,growth:{...defaults,growth:7,variable:37,paid:90},stress:{...defaults,growth:-3,variable:47,paid:60}};
+const el=id=>document.getElementById(id);
+const fmt=n=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);
+const money=n=>fmt(n)+" ₽";
+const num=id=>Number(el(id).value);
+const sum=(rows,key)=>rows.reduce((s,r)=>s+r[key],0);
+function compute(){
+ const p=Object.fromEntries(ids.map(id=>[id,num(id)]));
+ if(ids.some(id=>!Number.isFinite(p[id])||p[id]<0)||p.growth>100||p.variable>100||p.tax>100||p.paid>100){el("status").className="warning";el("status").textContent="Проверьте параметры: суммы не могут быть отрицательными, ставки должны быть от 0 до 100% (рост допускает от −100 до 100%).";return null}
+ let cash=p.opening,previous=0;const rows=[];
+ for(let t=0;t<12;t++){
+ const revenue=p.revenue*Math.pow(1+p.growth/100,t);
+ const variable=revenue*p.variable/100, fixed=p.fixed,tax=revenue*p.tax/100;
+ const profit=revenue-variable-fixed-tax;
+ const receipts=revenue*p.paid/100+previous*(1-p.paid/100);
+ const flow=receipts-variable-fixed-tax;
+ cash+=flow;
+ rows.push({month:t+1,revenue,variable,fixed,tax,profit,receipts,flow,cash});
+ previous=revenue;
+ }return rows;
+}
+function chart(id,series){
+ const svg=el(id),w=520,h=210,pad={l:12,r:10,t:12,b:26};
+ const vals=series.flatMap(s=>s.values),lo=Math.min(0,...vals),hi=Math.max(0,...vals);
+ const range=hi-lo||1, y=v=>pad.t+(hi-v)/range*(h-pad.t-pad.b),x=i=>pad.l+i*(w-pad.l-pad.r)/11;
+ let markup='<line x1="12" y1="'+y(0)+'" x2="510" y2="'+y(0)+'" stroke="#cbd5e1" stroke-dasharray="4 4"/>';
+ for(let i=0;i<12;i++)markup+='<text x="'+x(i)+'" y="203" font-size="10" text-anchor="middle" fill="#8490a3">'+(i+1)+'</text>';
+ for(const s of series){
+ const points=s.values.map((v,i)=>x(i)+','+y(v)).join(' ');
+ markup+='<polyline points="'+points+'" fill="none" stroke="'+s.color+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+ s.values.forEach((v,i)=>{markup+='<circle cx="'+x(i)+'" cy="'+y(v)+'" r="3" fill="'+(v<0&&s.negative?s.negative:s.color)+'"><title>Месяц '+(i+1)+': '+money(v)+'</title></circle>'});
+ }
+ svg.setAttribute("viewBox","0 0 520 210");svg.innerHTML=markup;
+}
+let latest=[];
+function render(){
+ const rows=compute();if(!rows)return;latest=rows;
+ const rev=sum(rows,"revenue"),profit=sum(rows,"profit"),cash=rows[11].cash;
+ el("mRevenue").textContent=money(rev);el("mProfit").textContent=money(profit);
+ el("mMargin").textContent=(rev?profit/rev*100:0).toLocaleString("ru-RU",{maximumFractionDigits:1})+"%";
+ el("mCash").textContent=money(cash);
+ el("mProfit").classList.toggle("negative",profit<0);el("mCash").classList.toggle("negative",cash<0);
+ chart("chartPnl",[{values:rows.map(r=>r.revenue),color:"#527ce7"},{values:rows.map(r=>r.profit),color:"#27ae96"}]);
+ chart("chartCash",[{values:rows.map(r=>r.cash),color:"#8c70d6",negative:"#df6572"}]);
+ const bad=rows.filter(r=>r.cash<0).map(r=>r.month);
+ el("status").className="warning"+(bad.length?"":" ok");
+ el("status").textContent=bad.length?"Внимание: расчётный отрицательный остаток денежных средств в месяцах: "+bad.join(", ")+". Требуется дополнительное финансирование или изменение условий.":"В базовой модели отрицательных остатков денежных средств нет.";
+ const metrics=[["Выручка","revenue"],["Переменные затраты","variable"],["Постоянные расходы","fixed"],["Модельный налог","tax"],["Чистая прибыль","profit"],["Поступления","receipts"],["Чистый денежный поток","flow"],["Остаток денег","cash"]];
+ el("table").innerHTML=metrics.map(([label,key])=>'<tr><td>'+label+'</td>'+rows.map(r=>'<td'+(r[key]<0?' class="negative"':'')+'>'+fmt(r[key])+'</td>').join("")+'</tr>').join("");
+ el("table").parentElement.previousElementSibling?.setAttribute("aria-live","polite");
+}
+ids.forEach(id=>el(id).addEventListener("input",()=>{el("scenario").value="base";render()}));
+el("scenario").addEventListener("change",()=>{const p=presets[el("scenario").value];ids.forEach(id=>el(id).value=p[id]);render()});
+el("reset").addEventListener("click",()=>{el("scenario").value="base";ids.forEach(id=>el(id).value=defaults[id]);render()});
+el("export").addEventListener("click",()=>{
+ if(!latest.length)return;
+ const keys=["month","revenue","variable","fixed","tax","profit","receipts","flow","cash"];
+ const labels=["Месяц","Выручка","Переменные затраты","Постоянные расходы","Модельный налог","Чистая прибыль","Поступления","Чистый денежный поток","Остаток денег"];
+ const csv="\ufeff"+[labels.join(";"),...latest.map(r=>keys.map(k=>String(Math.round(r[k]*100)/100).replace(".",",")).join(";"))].join("\r\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="finance-navigator-plan.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+render();
+</script></body></html>
