@@ -15,6 +15,12 @@
 .owner-verdict.critical{background:#fff1f0;border-color:#f1b4ae;border-left-color:#bd352e;color:#8e2b26}
 .owner-verdict.caution{background:#fff8e7;border-color:#efd79c;border-left-color:#bb8215;color:#77500c}
 .owner-verdict.healthy{background:#ecf8f1;border-color:#b6dec7;border-left-color:#218456;color:#206044}
+.owner-assessments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 18px}
+.owner-assessment{border:1px solid #dce6f5;border-radius:10px;background:white;padding:13px 15px}
+.owner-assessment strong{display:block;font-size:13px;margin-bottom:6px}
+.owner-assessment p{margin:0!important;font-size:12px!important;line-height:1.55!important}
+.owner-assessment.critical{border-left:4px solid #bd352e}.owner-assessment.caution{border-left:4px solid #bb8215}.owner-assessment.healthy{border-left:4px solid #218456}
+@media(max-width:760px){.owner-assessments{grid-template-columns:1fr}}
 </style></head><body><main class="wrap"><header><div class="brand">Finance <span>Navigator</span></div><div class="tag">Интерактивная финансовая модель · Демоверсия 0.5</div></header>
 <section class="hero"><h1>Управляйте цифрами. Видьте результат.</h1><p>Изменяйте финансовые предпосылки и сразу оценивайте прибыль, денежный поток и риск кассового разрыва на горизонте 12 месяцев.</p></section>
 <div class="layout"><aside class="panel"><h2>Параметры модели</h2>
@@ -41,7 +47,11 @@ const presets={base:defaults,growth:{...defaults,growth:7,variable:37,paid:90},s
 const el=id=>document.getElementById(id);
 const fmt=n=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);
 const money=n=>fmt(n)+" ₽";
-const num=id=>Number(el(id).value);
+const monetaryIds=["revenue","fixed","opening","reserve"];
+const parseInput=value=>Number(String(value).replace(/[\\s\\u00a0\\u202f]/g,"").replace(",","."));
+const num=id=>parseInput(el(id).value);
+const formatMoneyInput=id=>{const input=el(id),n=parseInput(input.value);if(input.value.trim()!==""&&Number.isFinite(n))input.value=new Intl.NumberFormat("ru-RU",{maximumFractionDigits:2}).format(n).replace(/[\\u00a0\\u202f]/g," ");};
+monetaryIds.forEach(id=>{const input=el(id);input.type="text";input.inputMode="decimal";input.addEventListener("focus",()=>{input.value=input.value.replace(/\\s/g,"");});input.addEventListener("blur",()=>formatMoneyInput(id));});
 const detectScenario=()=>Object.keys(presets).find(name=>ids.every(id=>num(id)===presets[name][id]))||"custom";
 const reserveDefault=600000;
 const sum=(rows,key)=>rows.reduce((s,r)=>s+r[key],0);
@@ -100,9 +110,9 @@ function showOwnerConclusion(rows,baseRows,reserve,isApplied){
  const negativeFlowMonths=rows.filter(r=>r.flow<0).map(r=>r.month);
  let verdict;
  if(now.profit<0&&lossMonths.length===12&&negativeFlowMonths.length===12){
-  verdict="КРИТИЧЕСКАЯ СИТУАЦИЯ: бизнес убыточен во все 12 месяцев, денежный поток отрицателен каждый месяц. Дефицит денег нарастает. Необходим антикризисный план и пересмотр экономики бизнеса.";
+  verdict="КРИТИЧЕСКАЯ СИТУАЦИЯ: бизнес убыточен во все 12 месяцев, денежный поток отрицателен каждый месяц. "+(negative.length?"На конец отдельных месяцев денег уже не хватает.":"Накопленный денежный запас сокращается, хотя на конец каждого месяца деньги ещё есть.")+" Необходим план восстановления прибыльности и контроль платежей.";
  }else if(now.profit<0){
-  verdict="КРИТИЧЕСКАЯ СИТУАЦИЯ: за год бизнес работает с операционным убытком"+(negative.length?", при этом прогнозируется нехватка денег.":"; даже при достаточном остатке денег текущая модель требует восстановления прибыльности.");
+  verdict="КРИТИЧЕСКАЯ СИТУАЦИЯ: за год бизнес работает с операционным убытком"+(negative.length?", при этом прогнозируется нехватка денег.":"; при положительном денежном остатке компания расходует финансовый запас на покрытие убытков. Необходимо восстановить прибыльность.");
  }else if(now.profit===0){
   verdict="ПОВЫШЕННЫЙ РИСК: бизнес не формирует операционную прибыль"+(negative.length||below.length?", а запас денег недостаточен.":". Необходимо проверить устойчивость модели.");
  }else if(negative.length||below.length){
@@ -111,6 +121,8 @@ function showOwnerConclusion(rows,baseRows,reserve,isApplied){
   verdict="УСТОЙЧИВАЯ СИТУАЦИЯ ПО МОДЕЛИ: бизнес прибыльный, остатки денег неотрицательны, установленный резерв соблюдается на конец каждого месяца.";
  }
  const level=now.profit<0?"critical":(now.profit===0||negative.length||below.length)?"caution":"healthy";
+ const profitability=now.profit<0?{level:"critical",title:"Убыточность",detail:"Операционный убыток за год: "+money(Math.abs(now.profit))+". Необходимо восстановить прибыльность."}:now.profit===0?{level:"caution",title:"Безубыточность",detail:"Операционная прибыль равна нулю. Запаса устойчивости по прибыли нет."}:{level:"healthy",title:"Прибыльный бизнес",detail:"Операционная прибыль за год: "+money(now.profit)+"."};
+ const liquidity=negative.length?{level:"critical",title:"Дефицит денежных средств",detail:"Отрицательный остаток на конец "+negative.length+" мес. Минимальный остаток: "+money(now.min)+"."}:below.length?{level:"caution",title:"Резерв недостаточен",detail:"Остаток ниже целевого резерва в "+below.length+" мес. Минимум: "+money(now.min)+"."}:{level:"healthy",title:"Резерв соблюдается",detail:"Минимальный остаток на конец месяца: "+money(now.min)+". Контроль внутримесячных платежей требуется отдельно."};
  const levelInfo={critical:{icon:"●",label:"Критическая ситуация"},caution:{icon:"▲",label:"Повышенный риск"},healthy:{icon:"✓",label:"Устойчивое состояние по модели"}}[level];
  const verdictCard=document.createElement("div");verdictCard.className="owner-verdict "+level;
  const verdictHead=document.createElement("div");verdictHead.className="owner-verdict-head";
@@ -119,6 +131,9 @@ function showOwnerConclusion(rows,baseRows,reserve,isApplied){
  verdictHead.append(verdictIcon,verdictLabel);
  const verdictText=document.createElement("p");verdictText.textContent=verdict.replace(/^(?:КРИТИЧЕСКАЯ СИТУАЦИЯ|ПОВЫШЕННЫЙ РИСК|УСТОЙЧИВАЯ СИТУАЦИЯ ПО МОДЕЛИ):\s*/,"");
  verdictCard.append(verdictHead,verdictText);target.append(verdictCard);
+ const assessments=document.createElement("div");assessments.className="owner-assessments";
+ for(const [heading,item] of [["Прибыльность",profitability],["Ликвидность",liquidity]]){const box=document.createElement("div");box.className="owner-assessment "+item.level;const h=document.createElement("strong");h.textContent=heading+": "+item.title;const p=document.createElement("p");p.textContent=item.detail;box.append(h,p);assessments.append(box);}
+ target.append(assessments);
  add("Что происходит с бизнесом",result+" Расчётный остаток денег на конец года: "+money(now.cash)+". Прибыль и остаток денег — разные показатели."+cashExplanation);
  if(isApplied){
   const deltaProfit=now.profit-before.profit,deltaCash=now.cash-before.cash;
@@ -209,5 +224,6 @@ el("export").addEventListener("click",()=>{
 });
 try{const saved=JSON.parse(localStorage.getItem("finance-navigator-inputs")||"null");if(saved&&ids.every(id=>typeof saved[id]==="number"&&Number.isFinite(saved[id]))){ids.forEach(id=>el(id).value=saved[id]);if(typeof saved.reserve==="number"&&Number.isFinite(saved.reserve)&&saved.reserve>=0)el("reserve").value=saved.reserve}}catch(e){}
 el("scenario").value=detectScenario();
+monetaryIds.forEach(formatMoneyInput);
 render();
 </script></body></html>
