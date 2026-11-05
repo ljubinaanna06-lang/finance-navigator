@@ -5,6 +5,16 @@
 
 .diagnosis{margin-top:18px;border:1px solid #dce6f5;border-radius:14px;padding:18px;background:#f9fbff}.diagnosis h3{font-size:17px;margin:0 0 8px}.diagnosis h4{font-size:13px;margin:15px 0 6px;color:#36517d}.diagnosis ul{margin:5px 0 0;padding-left:21px}.diagnosis li{margin:7px 0;line-height:1.5;font-size:13px}.diagnosis p{font-size:12px;line-height:1.5;color:#64748b;margin:10px 0 0}
 .simulator{margin-top:18px;border:1px solid #c9d8f6;border-radius:14px;padding:18px;background:#fff}.simulator h3{font-size:17px;margin:0 0 6px}.simulator p{font-size:12px;color:#64748b;line-height:1.5}.sim-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}.sim-controls label{font-size:12px;font-weight:650;color:#405271}.sim-controls input{display:block;width:100%;margin-top:6px;padding:10px;border:1px solid #cbd7ec;border-radius:8px;box-sizing:border-box}.sim-results{overflow-x:auto}.sim-results table{width:100%;border-collapse:collapse;font-size:13px}.sim-results td,.sim-results th{padding:9px;border-bottom:1px solid #e3eaf5;text-align:right;white-space:nowrap}.sim-results td:first-child,.sim-results th:first-child{text-align:left}.sim-results th{color:#526788}.sim-negative{color:#cc4052}.sim-good{color:#188467}@media(max-width:760px){.sim-controls{grid-template-columns:1fr}}
+
+/* Визуальный статус заключения для собственника */
+.owner-verdict{margin:12px 0 18px;padding:16px 18px;border:1px solid;border-left-width:5px;border-radius:12px}
+.owner-verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.owner-verdict-icon{font-size:22px;line-height:1;aria-hidden:true}
+.owner-verdict-label{font-size:14px;font-weight:800;letter-spacing:.01em}
+.owner-verdict p{font-size:14px!important;line-height:1.6!important;margin:0!important;color:inherit!important}
+.owner-verdict.critical{background:#fff1f0;border-color:#f1b4ae;border-left-color:#bd352e;color:#8e2b26}
+.owner-verdict.caution{background:#fff8e7;border-color:#efd79c;border-left-color:#bb8215;color:#77500c}
+.owner-verdict.healthy{background:#ecf8f1;border-color:#b6dec7;border-left-color:#218456;color:#206044}
 </style></head><body><main class="wrap"><header><div class="brand">Finance <span>Navigator</span></div><div class="tag">Интерактивная финансовая модель · Демоверсия 0.5</div></header>
 <section class="hero"><h1>Управляйте цифрами. Видьте результат.</h1><p>Изменяйте финансовые предпосылки и сразу оценивайте прибыль, денежный поток и риск кассового разрыва на горизонте 12 месяцев.</p></section>
 <div class="layout"><aside class="panel"><h2>Параметры модели</h2>
@@ -100,7 +110,15 @@ function showOwnerConclusion(rows,baseRows,reserve,isApplied){
  }else{
   verdict="УСТОЙЧИВАЯ СИТУАЦИЯ ПО МОДЕЛИ: бизнес прибыльный, остатки денег неотрицательны, установленный резерв соблюдается на конец каждого месяца.";
  }
- add("Главный вывод",verdict);
+ const level=now.profit<0?"critical":(now.profit===0||negative.length||below.length)?"caution":"healthy";
+ const levelInfo={critical:{icon:"●",label:"Критическая ситуация"},caution:{icon:"▲",label:"Повышенный риск"},healthy:{icon:"✓",label:"Устойчивое состояние по модели"}}[level];
+ const verdictCard=document.createElement("div");verdictCard.className="owner-verdict "+level;
+ const verdictHead=document.createElement("div");verdictHead.className="owner-verdict-head";
+ const verdictIcon=document.createElement("span");verdictIcon.className="owner-verdict-icon";verdictIcon.setAttribute("aria-hidden","true");verdictIcon.textContent=levelInfo.icon;
+ const verdictLabel=document.createElement("strong");verdictLabel.className="owner-verdict-label";verdictLabel.textContent=levelInfo.label;
+ verdictHead.append(verdictIcon,verdictLabel);
+ const verdictText=document.createElement("p");verdictText.textContent=verdict;
+ verdictCard.append(verdictHead,verdictText);target.append(verdictCard);
  add("Что происходит с бизнесом",result+" Расчётный остаток денег на конец года: "+money(now.cash)+". Прибыль и остаток денег — разные показатели."+cashExplanation);
  if(isApplied){
   const deltaProfit=now.profit-before.profit,deltaCash=now.cash-before.cash;
