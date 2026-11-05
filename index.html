@@ -64,6 +64,22 @@ button:focus-visible{outline:3px solid #8baaf1;outline-offset:2px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.wrap{padding:16px 12px}.hero{padding:26px 22px}.hero h1{letter-spacing:-.6px}.panel{padding:18px}.metric strong{font-size:19px}}
 @media(prefers-reduced-motion:reduce){.metric,.field input,.field select,button{transition:none!important}.metric:hover,button:hover{transform:none!important}}
+
+/* Executive simulator comparison */
+.simulator{background:linear-gradient(180deg,#fbfcff 0%,#fff 38%);border-color:#d7e2f5;border-radius:18px;padding:22px}
+.sim-highlights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.sim-highlight{min-width:0;background:#fff;border:1px solid #e0e7f2;border-radius:14px;padding:15px;box-shadow:0 5px 16px rgba(23,48,88,.035)}
+.sim-highlight small{display:block;color:#657792;font-size:11px;line-height:1.4;min-height:30px}
+.sim-highlight .sim-before{color:#78859a;font-size:12px;margin-top:10px}
+.sim-highlight .sim-after{font-size:clamp(16px,1.65vw,23px);font-weight:800;letter-spacing:-.5px;color:#1b2e50;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;margin:5px 0}
+.sim-highlight .sim-delta{display:inline-block;padding:5px 8px;border-radius:7px;background:#f1f5fb;color:#50647f;font-size:11px;font-weight:750;font-variant-numeric:tabular-nums}
+.sim-highlight .sim-delta.good{background:#eaf7f0;color:#16734f}
+.sim-highlight .sim-delta.bad{background:#fff0ef;color:#b53f46}
+.sim-results{border:1px solid #e1e8f3;border-radius:12px;background:white}
+.sim-results th{background:#f6f9fe;font-weight:700}
+.sim-results tbody tr:hover{background:#f8faff}
+@media(max-width:1100px){.sim-highlights{grid-template-columns:1fr}}
+@media(min-width:1101px) and (max-width:1300px){.sim-highlight{padding:12px}}
 </style></head><body><main class="wrap"><header><div class="brand">Finance <span>Navigator</span></div><div class="tag">Интерактивная финансовая модель · Демоверсия 0.5</div></header>
 <section class="hero"><h1>Управляйте цифрами. Видьте результат.</h1><p>Изменяйте финансовые предпосылки и сразу оценивайте прибыль, денежный поток и риск кассового разрыва на горизонте 12 месяцев.</p></section>
 <div class="layout"><aside class="panel"><h2>Параметры модели</h2>
@@ -80,7 +96,7 @@ button:focus-visible{outline:3px solid #8baaf1;outline-offset:2px}
 <section class="panel"><div class="actions"><h2 style="margin:0">Финансовый дашборд</h2><button id="export" type="button">Экспорт CSV</button></div>
 <p id="activeScenario" style="font-weight:700;color:#3158a5;margin:10px 0 16px">Активный сценарий: исходный</p><div class="metrics"><div class="metric"><small>Выручка за 12 мес.</small><strong id="mRevenue">—</strong><em>по начислению</em></div><div class="metric"><small>Операционная прибыль</small><strong id="mProfit">—</strong><em>за 12 месяцев</em></div><div class="metric"><small>Операционная рентабельность</small><strong id="mMargin">—</strong><em>прибыль / выручка</em></div><div class="metric"><small>Деньги на конец периода</small><strong id="mCash">—</strong><em>расчётный остаток</em></div></div>
 <div class="charts"><div class="chart"><h3>Выручка и операционная прибыль, ₽</h3><svg id="chartPnl" class="plot" role="img" aria-label="График выручки и операционной прибыли"></svg><div class="legend"><span><i class="dot" style="background:#527ce7"></i>Выручка</span><span><i class="dot" style="background:#27ae96"></i>Прибыль</span></div></div><div class="chart"><h3>Остаток денежных средств, ₽</h3><svg id="chartCash" class="plot" role="img" aria-label="График остатка денежных средств"></svg><div class="legend"><span><i class="dot" style="background:#8c70d6"></i>Остаток</span><span><i class="dot" style="background:#df6572"></i>Кассовый разрыв</span><span><i class="dot" style="background:#c18b39"></i>Ниже резерва / линия резерва</span></div></div></div>
-<div id="status" class="warning ok" role="status" aria-live="polite"></div><section class="diagnosis" aria-label="Финансовая диагностика"><h3>Финансовый аналитик</h3><div id="diagnosis" aria-live="polite"></div><p>Автоматическая диагностика по формулам модели, без ИИ. Сценарные эффекты не являются прогнозом достижимости и не учитывают взаимосвязи параметров.</p></section><section class="diagnosis" aria-label="Заключение для собственника"><h3>Заключение для собственника</h3><div id="ownerConclusion" aria-live="polite"></div><p>Вывод сформирован автоматически по упрощённой модели. Это расчётный сценарий, а не гарантия достижения результата. Проверка платёжного календаря и реализуемости решений обязательна.</p></section><section class="simulator"><h3>Симулятор управленческих решений</h3><p>Изменения применяются к исходному сценарию одновременно. Проверяйте решения до применения. Исходные параметры сохраняются для сравнения и возврата.</p><div class="sim-controls"><label>Сократить постоянные расходы на, ₽/мес.<input id="simFixed" type="number" min="0" step="10000" value="0"></label><label>Снизить переменные затраты на, п. п.<input id="simVariable" type="number" min="0" max="100" step="0.5" value="0"></label><label>Ускорить оплаты на, п. п.<input id="simPaid" type="number" min="0" max="100" step="1" value="0"></label></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0"><button id="applySim" type="button">Применить решения</button><button id="returnBase" type="button" style="background:#e8eefb;color:#234a9d">Вернуться к исходному</button></div><div id="simError" role="status" aria-live="polite"></div><div class="sim-results"><table><thead><tr><th>Показатель</th><th>Исходный</th><th>После изменений</th><th>Разница</th></tr></thead><tbody id="simTable"></tbody></table></div><p>«Сколько денег нужно, чтобы не уйти в минус» — сумма для покрытия самого глубокого отрицательного остатка на конец месяца. «Сколько денег не хватает до безопасного резерва» — недостаток до установленного резерва. Эти суммы не складываются. Расчёт не учитывает внутримесячные платежи. Расчёт не моделирует даты платежей, затраты на внедрение решений и их достижимость.</p></section><div class="liquidity-note">Оценка основана на остатках на конец месяца. Внутримесячные кассовые разрывы и сроки конкретных платежей не моделируются.</div><div class="tablewrap"><table><thead><tr><th>Показатель</th><th id="planTitle" colspan="12">Помесячный план — исходный сценарий</th></tr></thead><tbody id="table"></tbody></table></div>
+<div id="status" class="warning ok" role="status" aria-live="polite"></div><section class="diagnosis" aria-label="Финансовая диагностика"><h3>Финансовый аналитик</h3><div id="diagnosis" aria-live="polite"></div><p>Автоматическая диагностика по формулам модели, без ИИ. Сценарные эффекты не являются прогнозом достижимости и не учитывают взаимосвязи параметров.</p></section><section class="diagnosis" aria-label="Заключение для собственника"><h3>Заключение для собственника</h3><div id="ownerConclusion" aria-live="polite"></div><p>Вывод сформирован автоматически по упрощённой модели. Это расчётный сценарий, а не гарантия достижения результата. Проверка платёжного календаря и реализуемости решений обязательна.</p></section><section class="simulator"><h3>Симулятор управленческих решений</h3><p>Изменения применяются к исходному сценарию одновременно. Проверяйте решения до применения. Исходные параметры сохраняются для сравнения и возврата.</p><div class="sim-controls"><label>Сократить постоянные расходы на, ₽/мес.<input id="simFixed" type="number" min="0" step="10000" value="0"></label><label>Снизить переменные затраты на, п. п.<input id="simVariable" type="number" min="0" max="100" step="0.5" value="0"></label><label>Ускорить оплаты на, п. п.<input id="simPaid" type="number" min="0" max="100" step="1" value="0"></label></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0"><button id="applySim" type="button">Применить решения</button><button id="returnBase" type="button" style="background:#e8eefb;color:#234a9d">Вернуться к исходному</button></div><div id="simError" role="status" aria-live="polite"></div><div class="sim-highlights" id="simHighlights" aria-label="Ключевые эффекты управленческих решений"></div><div class="sim-results"><table><thead><tr><th>Показатель</th><th>Исходный</th><th>После изменений</th><th>Разница</th></tr></thead><tbody id="simTable"></tbody></table></div><p>«Сколько денег нужно, чтобы не уйти в минус» — сумма для покрытия самого глубокого отрицательного остатка на конец месяца. «Сколько денег не хватает до безопасного резерва» — недостаток до установленного резерва. Эти суммы не складываются. Расчёт не учитывает внутримесячные платежи. Расчёт не моделирует даты платежей, затраты на внедрение решений и их достижимость.</p></section><div class="liquidity-note">Оценка основана на остатках на конец месяца. Внутримесячные кассовые разрывы и сроки конкретных платежей не моделируются.</div><div class="tablewrap"><table><thead><tr><th>Показатель</th><th id="planTitle" colspan="12">Помесячный план — исходный сценарий</th></tr></thead><tbody id="table"></tbody></table></div>
 <div class="foot">Рабочая демонстрационная модель. Введённые параметры сохраняются в браузере этого устройства. Не включает НДС, CAPEX, кредиты, амортизацию, запасы и полноценный баланс. Формулы и ограничения описаны в docs/METHODOLOGY.md.</div></section></div></main>
 <script>
 "use strict";
@@ -205,7 +221,7 @@ function showSimulator(rows,reserve){
  const base=Object.fromEntries(ids.map(id=>[id,num(id)]));
  const inputs=["simFixed","simVariable","simPaid"].map(num);
  if(inputs.some(v=>!Number.isFinite(v)||v<0)||inputs[0]>base.fixed||inputs[1]>base.variable||inputs[2]>100-base.paid){
- error.textContent="Проверьте изменения: сокращение не может превышать соответствующие расходы, а доля оплат не может быть больше 100%.";error.className="sim-negative";return;
+ error.textContent="Проверьте изменения: сокращение не может превышать соответствующие расходы, а доля оплат не может быть больше 100%.";error.className="sim-negative";el("simHighlights").replaceChildren();return;
  }
  const p={...base,fixed:base.fixed-inputs[0],variable:base.variable-inputs[1],paid:base.paid+inputs[2]};
  const changed=compute(p,true);if(!changed)return;
@@ -213,6 +229,23 @@ function showSimulator(rows,reserve){
  const values=rr=>[sum(rr,"profit"),sum(rr,"flow"),rr[11].cash,Math.max(0,-min(rr)),Math.max(0,reserve-min(rr))];
  const a=values(rows),b=values(changed);
  const labels=["Операционная прибыль за 12 месяцев","Чистый денежный поток за 12 месяцев","Деньги на конец 12-го месяца","Сколько денег нужно, чтобы не уйти в минус","Сколько денег не хватает до безопасного резерва"];
+ const highlight=el("simHighlights");highlight.replaceChildren();
+ const highlightSpecs=[
+  {label:"Операционная прибыль · 12 мес.",index:0,lowerBetter:false},
+  {label:"Денежный остаток · конец 12-го мес.",index:2,lowerBetter:false},
+  {label:"Дефицит до минимального резерва",index:4,lowerBetter:true}
+ ];
+ highlightSpecs.forEach(spec=>{
+  const card=document.createElement("div");card.className="sim-highlight";
+  const title=document.createElement("small");title.textContent=spec.label;
+  const before=document.createElement("div");before.className="sim-before";before.textContent="До: "+money(a[spec.index]);
+  const after=document.createElement("div");after.className="sim-after";after.textContent="После: "+money(b[spec.index]);
+  const difference=b[spec.index]-a[spec.index];
+  const delta=document.createElement("span");const improved=spec.lowerBetter?difference<0:difference>0;
+  delta.className="sim-delta"+(difference===0?"":improved?" good":" bad");
+  delta.textContent=(difference>0?"+":"")+money(difference)+(difference===0?" · без изменений":improved?" · улучшение":" · ухудшение");
+  card.append(title,before,after,delta);highlight.append(card);
+ });
  labels.forEach((label,i)=>{const tr=document.createElement("tr");[label,money(a[i]),money(b[i]),(b[i]-a[i]>0?"+":"")+money(b[i]-a[i])].forEach((value,j)=>{const td=document.createElement("td");td.textContent=value;if(j===3&&b[i]!==a[i])td.className=(i>=3?(b[i]<a[i]?"sim-good":"sim-negative"):(b[i]>a[i]?"sim-good":"sim-negative"));tr.append(td)});target.append(tr)});
 }
 function chart(id,series){
