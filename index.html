@@ -117,7 +117,7 @@ function showOwnerConclusion(rows,baseRows,reserve,isApplied){
  const verdictIcon=document.createElement("span");verdictIcon.className="owner-verdict-icon";verdictIcon.setAttribute("aria-hidden","true");verdictIcon.textContent=levelInfo.icon;
  const verdictLabel=document.createElement("strong");verdictLabel.className="owner-verdict-label";verdictLabel.textContent=levelInfo.label;
  verdictHead.append(verdictIcon,verdictLabel);
- const verdictText=document.createElement("p");verdictText.textContent=verdict;
+ const verdictText=document.createElement("p");verdictText.textContent=verdict.replace(/^(?:КРИТИЧЕСКАЯ СИТУАЦИЯ|ПОВЫШЕННЫЙ РИСК|УСТОЙЧИВАЯ СИТУАЦИЯ ПО МОДЕЛИ):\s*/,"");
  verdictCard.append(verdictHead,verdictText);target.append(verdictCard);
  add("Что происходит с бизнесом",result+" Расчётный остаток денег на конец года: "+money(now.cash)+". Прибыль и остаток денег — разные показатели."+cashExplanation);
  if(isApplied){
