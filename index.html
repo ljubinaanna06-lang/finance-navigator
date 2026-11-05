@@ -5,7 +5,7 @@
 </style></head><body><main class="wrap"><header><div class="brand">Finance <span>Navigator</span></div><div class="tag">Интерактивная финансовая модель · Демоверсия 0.1</div></header>
 <section class="hero"><h1>Управляйте цифрами. Видьте результат.</h1><p>Изменяйте финансовые предпосылки и сразу оценивайте прибыль, денежный поток и риск кассового разрыва на горизонте 12 месяцев.</p></section>
 <div class="layout"><aside class="panel"><h2>Параметры модели</h2>
-<label class="field">Сценарий<select id="scenario"><option value="base">Базовый</option><option value="growth">Рост</option><option value="stress">Стресс</option></select></label>
+<label class="field">Сценарий<select id="scenario"><option value="base">Базовый</option><option value="growth">Рост</option><option value="stress">Стресс</option><option value="custom">Пользовательский</option></select></label>
 <label class="field">Выручка первого месяца, ₽<input id="revenue" type="number" min="0" step="10000" value="1500000"></label>
 <label class="field">Рост выручки в месяц, %<input id="growth" type="number" min="-100" max="100" step=".5" value="3"></label>
 <label class="field">Переменные затраты, % выручки<input id="variable" type="number" min="0" max="100" step=".5" value="40"></label>
@@ -29,6 +29,7 @@ const el=id=>document.getElementById(id);
 const fmt=n=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);
 const money=n=>fmt(n)+" ₽";
 const num=id=>Number(el(id).value);
+const detectScenario=()=>Object.keys(presets).find(name=>ids.every(id=>num(id)===presets[name][id]))||"custom";
 const sum=(rows,key)=>rows.reduce((s,r)=>s+r[key],0);
 function compute(){
  const p=Object.fromEntries(ids.map(id=>[id,num(id)]));
@@ -70,21 +71,22 @@ function render(){
  chart("chartCash",[{values:rows.map(r=>r.cash),color:"#8c70d6",negative:"#df6572"}]);
  const bad=rows.filter(r=>r.cash<0).map(r=>r.month);
  el("status").className="warning"+(bad.length?"":" ok");
- el("status").textContent=bad.length?"Внимание: расчётный отрицательный остаток денежных средств в месяцах: "+bad.join(", ")+". Требуется дополнительное финансирование или изменение условий.":"В базовой модели отрицательных остатков денежных средств нет.";
+ el("status").textContent=bad.length?"Внимание: расчётный отрицательный остаток денежных средств в месяцах: "+bad.join(", ")+". Требуется дополнительное финансирование или изменение условий.":"В текущем сценарии отрицательных остатков денежных средств нет.";
  const metrics=[["Выручка","revenue"],["Переменные затраты","variable"],["Постоянные расходы","fixed"],["Модельный налог","tax"],["Операционная прибыль","profit"],["Поступления","receipts"],["Чистый денежный поток","flow"],["Остаток денег","cash"]];
  el("table").innerHTML=metrics.map(([label,key])=>'<tr><td>'+label+'</td>'+rows.map(r=>'<td'+(r[key]<0?' class="negative"':'')+'>'+fmt(r[key])+'</td>').join("")+'</tr>').join("");
  el("table").parentElement.previousElementSibling?.setAttribute("aria-live","polite");
 }
-ids.forEach(id=>el(id).addEventListener("input",()=>{el("scenario").value="base";render()}));
-el("scenario").addEventListener("change",()=>{const p=presets[el("scenario").value];ids.forEach(id=>el(id).value=p[id]);render()});
+ids.forEach(id=>el(id).addEventListener("input",()=>{el("scenario").value=detectScenario();render()}));
+el("scenario").addEventListener("change",()=>{const p=presets[el("scenario").value];if(p)ids.forEach(id=>el(id).value=p[id]);render()});
 el("reset").addEventListener("click",()=>{el("scenario").value="base";ids.forEach(id=>el(id).value=defaults[id]);render()});
 el("export").addEventListener("click",()=>{
  if(!latest.length)return;
  const keys=["month","revenue","variable","fixed","tax","profit","receipts","flow","cash"];
- const labels=["Месяц","Выручка","Переменные затраты","Постоянные расходы","Модельный налог","Чистая прибыль","Поступления","Чистый денежный поток","Остаток денег"];
+ const labels=["Месяц","Выручка","Переменные затраты","Постоянные расходы","Модельный налог","Операционная прибыль","Поступления","Чистый денежный поток","Остаток денег"];
  const csv="\ufeff"+[labels.join(";"),...latest.map(r=>keys.map(k=>String(Math.round(r[k]*100)/100).replace(".",",")).join(";"))].join("\r\n");
  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="finance-navigator-plan.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 try{const saved=JSON.parse(localStorage.getItem("finance-navigator-inputs")||"null");if(saved&&ids.every(id=>typeof saved[id]==="number"&&Number.isFinite(saved[id])))ids.forEach(id=>el(id).value=saved[id])}catch(e){}
+el("scenario").value=detectScenario();
 render();
 </script></body></html>
