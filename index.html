@@ -210,7 +210,7 @@ function render(){
 }
 ["simFixed","simVariable","simPaid"].forEach(id=>el(id).addEventListener("input",()=>{applied=false;render()}));
 el("applySim").addEventListener("click",()=>{if(!adjustedParams()){el("simError").textContent="Проверьте значения управленческих решений.";return;}applied=true;render();el("activeScenario").scrollIntoView({behavior:"smooth",block:"center"});});
-el("returnBase").addEventListener("click",()=>{applied=false;render();el("activeScenario").scrollIntoView({behavior:"smooth",block:"center"});});
+el("returnBase").addEventListener("click",()=>{applied=false;["simFixed","simVariable","simPaid"].forEach(id=>{el(id).value="0";});render();el("activeScenario").scrollIntoView({behavior:"smooth",block:"center"});});
 el("reserve").addEventListener("input",render);
 ids.forEach(id=>el(id).addEventListener("input",()=>{el("scenario").value=detectScenario();applied=false;render()}));
 el("scenario").addEventListener("change",()=>{const p=presets[el("scenario").value];if(p)ids.forEach(id=>el(id).value=p[id]);applied=false;render()});
