@@ -47,7 +47,7 @@ const presets={base:defaults,growth:{...defaults,growth:7,variable:37,paid:90},s
 const el=id=>document.getElementById(id);
 const fmt=n=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n);
 const money=n=>fmt(n)+" ₽";
-const monetaryIds=["revenue","fixed","opening","reserve"];
+const monetaryIds=["revenue","fixed","opening","reserve","simFixed"];
 const parseInput=value=>Number(String(value).replace(/[\s\u00a0\u202f]/g,"").replace(",","."));
 const num=id=>parseInput(el(id).value);
 const formatMoneyInput=id=>{const input=el(id),n=parseInput(input.value);if(input.value.trim()!==""&&Number.isFinite(n))input.value=new Intl.NumberFormat("ru-RU",{maximumFractionDigits:2}).format(n).replace(/[\u00a0\u202f]/g," ");};
