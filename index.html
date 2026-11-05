@@ -21,6 +21,45 @@
 .owner-assessment p{margin:0!important;font-size:12px!important;line-height:1.55!important}
 .owner-assessment.critical{border-left:4px solid #bd352e}.owner-assessment.caution{border-left:4px solid #bb8215}.owner-assessment.healthy{border-left:4px solid #218456}
 @media(max-width:760px){.owner-assessments{grid-template-columns:1fr}}
+
+/* Premium Financial SaaS — visual layer only; financial logic remains unchanged */
+:root{color:#192943;background:#f2f5fa}
+body{background:radial-gradient(circle at 95% 0%,#e8effc 0%,transparent 32%),#f2f5fa}
+.wrap{max-width:1440px;padding-top:27px}
+header{margin-bottom:22px}
+.brand{font-size:25px;letter-spacing:-.85px;color:#152747}
+.brand span{color:#3768cf}
+.tag{font-size:12px;letter-spacing:.02em;color:#667794}
+.hero{position:relative;overflow:hidden;background:linear-gradient(112deg,#101f3d 0%,#1d3769 55%,#3159a1 100%);border:1px solid #36527e;border-radius:24px;padding:37px 39px;box-shadow:0 18px 38px rgba(18,39,76,.16)}
+.hero:after{content:"";position:absolute;width:280px;height:280px;right:-70px;top:-140px;border:1px solid rgba(255,255,255,.13);border-radius:50%;box-shadow:0 0 0 46px rgba(255,255,255,.025),0 0 0 95px rgba(255,255,255,.018);pointer-events:none}
+.hero h1{font-size:clamp(27px,3vw,38px);font-weight:780;letter-spacing:-1.1px;line-height:1.18}
+.hero p{font-size:14px;max-width:760px;color:#d9e5ff;margin-top:12px}
+.layout{grid-template-columns:minmax(275px,315px) minmax(0,1fr);gap:22px}
+.panel{border:1px solid #e2e8f2;border-radius:19px;box-shadow:0 10px 30px rgba(27,49,84,.055);padding:24px}
+.panel h2{font-size:18px;letter-spacing:-.25px;color:#1a2b4b}
+.field{font-size:12px;color:#50617d;letter-spacing:.005em}
+.field input,.field select{background:#fcfdff;border-color:#d8e1ee;border-radius:10px;min-height:43px;transition:border-color .18s,box-shadow .18s}
+.field input:hover,.field select:hover{border-color:#a5b9dc}
+.field input:focus,.field select:focus{outline:none;border-color:#4b79dc;box-shadow:0 0 0 3px rgba(75,121,220,.14)}
+.metrics{gap:13px}
+.metric{position:relative;border:1px solid #dfe7f3;background:linear-gradient(180deg,#fff,#fbfcff);border-radius:15px;padding:18px 16px;box-shadow:0 6px 18px rgba(22,45,84,.035);transition:transform .2s,box-shadow .2s}
+.metric:before{content:"";position:absolute;left:16px;right:16px;top:0;height:3px;background:#9bb2e4;border-radius:0 0 4px 4px}
+.metric:nth-child(2):before{background:#368e82}
+.metric:nth-child(3):before{background:#6d86c5}
+.metric:nth-child(4):before{background:#8c78c7}
+.metric:hover{transform:translateY(-2px);box-shadow:0 10px 23px rgba(22,45,84,.09)}
+.metric small{font-size:11px;line-height:1.4;color:#687993}
+.metric strong{font-size:clamp(17px,1.7vw,24px);font-weight:760;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:#1a2d4e}
+.metric em{display:block;margin-top:7px}
+.chart{border-color:#e0e7f1;border-radius:15px;background:#fff}
+.chart h3{color:#243b61}
+.actions button,button{transition:background .2s,transform .15s,box-shadow .2s}
+button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(35,77,160,.16)}
+button:focus-visible{outline:3px solid #8baaf1;outline-offset:2px}
+#activeScenario{display:inline-block;padding:7px 11px;border:1px solid #dbe6f9;background:#f4f8ff;border-radius:8px;font-size:12px!important}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.wrap{padding:16px 12px}.hero{padding:26px 22px}.hero h1{letter-spacing:-.6px}.panel{padding:18px}.metric strong{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.metric,.field input,.field select,button{transition:none!important}.metric:hover,button:hover{transform:none!important}}
 </style></head><body><main class="wrap"><header><div class="brand">Finance <span>Navigator</span></div><div class="tag">Интерактивная финансовая модель · Демоверсия 0.5</div></header>
 <section class="hero"><h1>Управляйте цифрами. Видьте результат.</h1><p>Изменяйте финансовые предпосылки и сразу оценивайте прибыль, денежный поток и риск кассового разрыва на горизонте 12 месяцев.</p></section>
 <div class="layout"><aside class="panel"><h2>Параметры модели</h2>
