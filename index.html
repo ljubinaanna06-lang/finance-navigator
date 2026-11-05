@@ -208,7 +208,20 @@ function render(){
  el("table").innerHTML=metrics.map(([label,key])=>'<tr><td>'+label+'</td>'+rows.map(r=>'<td'+(r[key]<0?' class="negative"':'')+'>'+fmt(r[key])+'</td>').join("")+'</tr>').join("");
  el("table").parentElement.previousElementSibling?.setAttribute("aria-live","polite");
 }
-// Enter confirms an edited numeric field without requiring a mouse click.\n[...document.querySelectorAll('input[type="number"],input[inputmode="decimal"]')].forEach(input=>{input.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();input.blur();render();}});});\n["simFixed","simVariable","simPaid"].forEach(id=>el(id).addEventListener("input",()=>{applied=false;render()}));
+// Enter confirms values in the parameter panel and applies decisions in the simulator.
+document.querySelectorAll('input[type="number"],input[inputmode="decimal"]').forEach(input=>{
+ input.addEventListener("keydown",event=>{
+  if(event.key!=="Enter"||event.isComposing)return;
+  event.preventDefault();
+  input.blur();
+  if(["simFixed","simVariable","simPaid"].includes(input.id)){
+   el("applySim").click();
+  }else{
+   render();
+  }
+ });
+});
+["simFixed","simVariable","simPaid"].forEach(id=>el(id).addEventListener("input",()=>{applied=false;render()}));
 el("applySim").addEventListener("click",()=>{if(!adjustedParams()){el("simError").textContent="Проверьте значения управленческих решений.";return;}applied=true;render();el("activeScenario").scrollIntoView({behavior:"smooth",block:"center"});});
 el("returnBase").addEventListener("click",()=>{applied=false;["simFixed","simVariable","simPaid"].forEach(id=>{el(id).value="0";});render();el("activeScenario").scrollIntoView({behavior:"smooth",block:"center"});});
 el("reserve").addEventListener("input",render);
